@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html><head><title>OG Username Leads</title><meta charset="utf-8">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'Segoe UI',system-ui,sans-serif;background:#0a0a0f;color:#d0d0d0;padding:24px 32px}
+a{color:#7aa2f7;text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* Header */
+.header{margin-bottom:24px}
+.header h1{font-size:20px;color:#e0e0e0;font-weight:600;letter-spacing:-.3px}
+.header p{color:#555;font-size:13px;margin-top:4px}
+
+/* Nav */
+.nav{display:flex;gap:4px;margin-bottom:20px;border-bottom:1px solid #1a1a24}
+.nav-item{padding:10px 20px;color:#555;font-size:13px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+.nav-item:hover{color:#888}
+.nav-item.active{color:#7aa2f7;border-bottom-color:#7aa2f7}
+
+/* Stats row */
+.stats-row{display:flex;gap:12px;margin-bottom:20px}
+.stat-card{background:#12121a;border:1px solid #1a1a24;border-radius:10px;padding:14px 20px;flex:1;text-align:center}
+.stat-card .n{font-size:28px;font-weight:700;color:#e0e0e0}
+.stat-card .l{font-size:11px;color:#555;margin-top:2px;text-transform:uppercase;letter-spacing:.5px}
+.stat-card.accent .n{color:#7aa2f7}
+
+/* Filters */
+.filters{display:none;gap:8px;margin-bottom:16px;align-items:center}
+.filters select,.filters input{background:#12121a;border:1px solid #1a1a24;color:#d0d0d0;padding:8px 14px;border-radius:8px;font-size:13px;outline:none}
+.filters select:focus,.filters input:focus{border-color:#333}
+.filters input{width:260px}
+
+/* Section divider */
+.section{margin:28px 0 12px;display:flex;align-items:center;gap:12px}
+.section h2{font-size:14px;font-weight:600;color:#e0e0e0}
+.section .count{font-size:12px;color:#555;background:#1a1a24;padding:2px 8px;border-radius:10px}
+.section .line{flex:1;height:1px;background:#1a1a24}
+
+/* Lead rows */
+.leads{display:flex;flex-direction:column;gap:1px}
+.lead{background:#12121a;border:1px solid transparent;border-radius:8px;cursor:pointer;transition:all .12s;margin-bottom:2px}
+.lead:hover{background:#16161f;border-color:#1a1a24}
+.lead.open{border-color:#2a2a3a;background:#14141d}
+
+.lead-top{display:grid;grid-template-columns:200px 70px 150px 1fr 80px;gap:12px;align-items:center;padding:10px 16px}
+
+.lead-name{font-family:'SF Mono','Cascadia Code','Consolas',monospace;font-size:15px;font-weight:600}
+.lead-name .tier{font-size:10px;font-weight:500;padding:2px 6px;border-radius:4px;margin-left:6px;vertical-align:middle}
+.tier-s{background:#2d1520;color:#f7768e}
+.tier-a{background:#2d2215;color:#ff9e64}
+.tier-b{background:#1e1e30;color:#bb9af7}
+.tier-c{background:#15202e;color:#7dcfff}
+.tier-d{background:#1a1a1a;color:#555}
+
+.lead-type{font-size:11px;font-weight:600;padding:3px 8px;border-radius:4px;text-align:center}
+.t-owner{background:#1a2a1a;color:#9ece6a}
+.t-seller{background:#2d2215;color:#ff9e64}
+.t-indirect{background:#1e1e30;color:#bb9af7}
+.t-mention{background:#15202e;color:#7dcfff}
+
+.lead-author{font-size:13px}
+.lead-summary{font-size:12px;color:#555;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lead-summary .handle{color:#9ece6a}
+.lead-summary .inactive{color:#f7768e}
+.lead-activity{font-size:11px;text-align:right}
+
+/* Expanded detail */
+.lead-detail{display:none;padding:16px 20px;border-top:1px solid #1a1a24}
+.lead.open .lead-detail{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+
+.detail-group{margin-bottom:12px}
+.detail-group h4{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#444;margin-bottom:6px;font-weight:600}
+.detail-group .val{font-size:13px;line-height:1.7;color:#bbb}
+
+.handles{list-style:none}
+.handles li{padding:3px 0;display:flex;align-items:center;gap:8px}
+.handles .plat{font-size:11px;color:#555;min-width:65px}
+.handles .h{font-family:monospace;color:#9ece6a;font-size:13px}
+
+.quote{color:#666;font-size:12px;line-height:1.6;border-left:2px solid #1a1a24;padding-left:10px;margin:4px 0}
+.meta{font-size:11px;color:#333;margin-top:8px}
+
+/* Tags */
+.tag{display:inline-block;font-size:10px;padding:2px 6px;border-radius:4px;margin-left:6px;font-weight:500;vertical-align:middle}
+.tag-free{background:#1a2a1a;color:#9ece6a}
+.tag-cheap{background:#2d2a15;color:#e0af68}
+.tag-undervalued{background:#2d1520;color:#f7768e}
+
+/* Indirect cards */
+.indirect-group{background:#12121a;border:1px solid #1a1a24;border-radius:10px;padding:14px 18px;margin-bottom:10px}
+.indirect-group h3{font-size:13px;font-weight:600;color:#bb9af7;margin-bottom:8px}
+.indirect-row{padding:5px 0;border-top:1px solid #0f0f15;display:flex;gap:10px;align-items:baseline;font-size:12px}
+.indirect-row .s{color:#7aa2f7;font-weight:600;min-width:22px}
+.indirect-row .a{color:#7aa2f7;min-width:140px}
+.indirect-row .c{color:#555;flex:1}
+.indirect-row .sig{color:#bb9af7;font-size:11px}
+</style>
+</head><body>
+
+<div class="header">
+  <h1>Discord OG Username Leads</h1>
+  <p>400 verified leads — people who own valuable Discord usernames</p>
+</div>
+
+<div class="nav">
+  <div class="nav-item active" onclick="switchTab('priority')">Priority</div>
+  <div class="nav-item" onclick="switchTab('all')">All Leads</div>
+  <div class="nav-item" onclick="switchTab('indirect')">Indirect</div>
+</div>
+
+<div class="stats-row" id="stats"></div>
+
+<div class="filters" id="filtersWrap">
+  <select id="tierFilter"><option value="">All Tiers</option><option value="S">S-Tier</option><option value="A">A-Tier</option><option value="B">B-Tier</option><option value="C">C-Tier</option><option value="D">D-Tier</option><option value="?">Indirect</option></select>
+  <select id="typeFilter"><option value="">All Types</option><option value="OWNER">Owner</option><option value="SELLER">Seller</option><option value="INDIRECT">Indirect</option><option value="MENTION">Mention</option></select>
+  <input type="text" id="search" placeholder="Search username, author, context...">
+</div>
+
+<div id="mainView"></div>
+
+<script>
+let allLeads=[], currentTab='priority';
+
+// Real words list for A-tier bonus (common English words that are valuable)
+const REAL_WORDS = new Set([
+  // These are known valuable real-word usernames from our leads
+  'nic','amy','thc','eve','unc','hax','ace','max','sam','dan','sky','god','ice','sun',
+  'fire','wolf','dark','moon','star','king','zero','hero','void','soul','iron','fate',
+  'omen','sage','rune','bolt','fury','nova','opal','dave','adam','noah','ryan','jack',
+  'jade','ruby','lily','rose','dean','cole','drew','sean','alex','nick','rick','mike',
+  'taro','raya','kido','lexy','cyan','joyz','farah','allah','sparky','dominik','cleora',
+  'norman','acoustic','princess','wrench','paper','laser','paddy','occupied','venom',
+  'arctic','plasma','nebula','peanut','artemis','eclipse','phantom','phoenix','crimson',
+  'panther','cobalt','prism','velvet','ember','cedar','honey','blaze','frost','coral',
+  'hazel','ivory','onyx','pearl','amber','olive','raven','scout','atlas','felix','luna'
+]);
+
+function isRealWord(name) {
+  if (!name || name.startsWith('[')) return false;
+  const clean = name.replace(/[._]/g,'').toLowerCase();
+  if (REAL_WORDS.has(clean)) return true;
+  // 5+ letter lowercase alpha strings are likely real words
+  if (clean.length >= 5 && /^[a-z]+$/.test(clean)) return true;
+  return false;
+}
+
+function getActionability(l) {
+  // Returns a category string for grouping
+  const ctx = (l.context||'').toLowerCase();
+  const sig = (l.indirect_signal||'').toLowerCase();
+  const contact = (l.contact||'').toLowerCase();
+  const name = l.username||'';
+
+  // Dead leads
+  if (contact.includes('suspended') || contact === 'suspended' || contact.includes('inactive')) return 'dead';
+
+  // Ready to deal — actively selling, giving away, or stated a price
+  if (l.ownership_type === 'SELLER') return 'deal';
+  if (ctx.includes('give') && ctx.includes('away')) return 'deal';
+  if (ctx.includes('for a nitro') || ctx.includes('for nitro')) return 'deal';
+  if (sig.includes('wants to sell') || sig.includes('actively asking') || ctx.includes('where can i sell')) return 'deal';
+  if (sig.includes('would sell') || sig.includes('open to selling')) return 'deal';
+  if (ctx.includes('looking to give')) return 'deal';
+  if (sig.includes('motivated seller')) return 'deal';
+
+  // Has contact beyond Reddit = reachable
+  const hasContact = contact.includes('discord dm') || contact.includes('telegram:') ||
+    contact.includes('twitter:') || contact.includes('instagram:') ||
+    contact.includes('github:') || contact.includes('website:') ||
+    contact.includes('youtube:') || contact.includes('spotify:') ||
+    contact.includes('tiktok:');
+
+  // High value = S or A tier, or real word
+  const isHighValue = l.tier === 'S' || l.tier === 'A' || isRealWord(name);
+
+  if (isHighValue && hasContact) return 'reachable';
+  if (isHighValue) return 'highvalue';
+
+  // Valuable indirects — being spammed, offered money, own something desirable
+  if (l.ownership_type === 'INDIRECT') {
+    if (sig.includes('2-letter') || sig.includes('2 letter') || ctx.includes('2 letter')) return 'hotindirect';
+    if (sig.includes('offered') || ctx.match(/\$\d/) || ctx.includes('offered')) return 'hotindirect';
+    if (sig.includes('friend request') || sig.includes('spam') || sig.includes('harass') ||
+        ctx.includes('friend request') || ctx.includes('adding me')) return 'hotindirect';
+    if (sig.includes('needs money') || sig.includes('poverty') || sig.includes('financially')) return 'hotindirect';
+    if (ctx.includes('sell') || sig.includes('sell')) return 'hotindirect';
+    return 'indirect';
+  }
+
+  return 'low';
+}
+
+function getPriority(l) {
+  let s = 0;
+  const name = (l.username||'').replace(/[._]/g,'');
+  const ctx = (l.context||'').toLowerCase();
+  const sig = (l.indirect_signal||'').toLowerCase();
+  const contact = (l.contact||'').toLowerCase();
+  const word = isRealWord(l.username);
+
+  // Username value
+  if (l.tier === 'S') s += 100;
+  else if (l.tier === 'A') s += 80;
+  else if (l.tier === 'B') s += 40;
+  else if (l.tier === '?') s += 30;
+  else if (l.tier === 'C') s += 10;
+  else s += 5;
+  if (word && l.tier !== 'S' && l.tier !== 'A') s += 40;
+
+  // Actionability bonuses
+  if (l.ownership_type === 'SELLER') s += 30;
+  else if (l.ownership_type === 'OWNER') s += 20;
+  else if (l.ownership_type === 'INDIRECT') s += 15;
+  else s += 5;
+
+  // Undervalued signals
+  if (ctx.includes('nitro') && (ctx.includes('sell') || ctx.includes('down to'))) s += 30;
+  if (ctx.includes('give') && ctx.includes('away')) s += 35;
+  if (ctx.includes('for a nitro') || ctx.includes('for nitro')) s += 25;
+  if (sig.includes('2-letter') || ctx.includes('2 letter')) s += 20;
+  if (ctx.includes('offered') && ctx.match(/\$\d/)) s += 10;
+
+  // Reachability bonus
+  const hasMultipleContacts = (contact.match(/telegram:|twitter:|instagram:|discord dm|github:|tiktok:|youtube:/gi)||[]).length;
+  s += hasMultipleContacts * 5;
+
+  // Penalties
+  if (contact.includes('suspended') || contact === 'suspended') s -= 80;
+  if (contact.includes('unlikely to respond')) s -= 15;
+  if (l.reddit_author === '[deleted]') s -= 50;
+
+  return s;
+}
+
+function esc(s){return (s||'').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+function relDate(str){
+  if(!str)return null;
+  const m=str.match(/\d{4}-\d{2}-\d{2}/);
+  if(!m)return null;
+  const dt=new Date(m[0]);
+  if(isNaN(dt))return null;
+  const d=Math.floor((Date.now()-dt)/864e5);
+  let t='';
+  if(d<1)t='today';else if(d<30)t=d+'d';else if(d<365){const mo=Math.floor(d/30);t=mo+'mo';}else{const y=Math.floor(d/365);t=y+'y';}
+  const c=d<30?'#9ece6a':d<180?'#e0af68':'#f7768e';
+  return{t,c};
+}
+
+function parseContact(raw){
+  if(!raw)return{handles:[],activity:null,notes:[],status:null};
+  const parts=raw.split('|').map(p=>p.trim());
+  const handles=[];let activity=null;const notes=[];let status=null;
+  parts.forEach(p=>{
+    if(p.startsWith('Active:')||p.startsWith('Last active')){
+      activity=relDate(p);
+    }else if(p.match(/^(Discord|Twitter|IG|Instagram|Twitch|YT|YouTube|Steam|TikTok|Telegram|Bluesky|eBay|Epic|GitHub|Kick|Pinterest|PSN|Roblox|Venmo|Crunchyroll|Snap|Snapchat|Website|Bandlab|osu):/i)){
+      handles.push(p);
+    }else if(/INACTIVE|SUSPENDED|DELETED|BANNED/i.test(p)){
+      status=p;
+    }else if(p==='No handles found'||p==='No other handles'||p==='No other handles found'||p==='Reddit DM only'||p==='Reddit DM'){
+    }else if(p.length>2){
+      notes.push(p);
+    }
+  });
+  return{handles,activity,notes,status};
+}
+
+function summary(l,p){
+  if(p.status)return`<span class="inactive">${esc(p.status)}</span>`;
+  const bits=[];
+  const other=p.handles.find(h=>!h.startsWith('Discord:'));
+  if(other)bits.push(`<span class="handle">${esc(other)}</span>`);
+  if(p.notes.length)bits.push(esc(p.notes[0]).substring(0,70));
+  if(!bits.length&&l.context)bits.push(esc(l.context).substring(0,70));
+  return bits.join(' · ')||'<span style="color:#333">Not researched</span>';
+}
+
+function detail(l,p){
+  let L='',R='';
+  L+='<div class="detail-group"><h4>Handles</h4><ul class="handles">';
+  L+=`<li><span class="plat">Discord</span><span class="h">@${esc(l.username)}</span></li>`;
+  p.handles.forEach(h=>{
+    const[pl,...r]=h.split(':');const v=r.join(':').trim();
+    if(pl.toLowerCase()==='discord'&&v==='@'+l.username)return;
+    L+=`<li><span class="plat">${esc(pl)}</span><span class="h">${esc(v)}</span></li>`;
+  });
+  L+='</ul></div>';
+  const u=`https://www.reddit.com/user/${l.reddit_author}`;
+  L+=`<div class="detail-group"><h4>Reach</h4><div class="val"><a href="${u}" target="_blank">u/${esc(l.reddit_author)}</a>`;
+  if(l.source_url)L+=` &middot; <a href="${esc(l.source_url)}" target="_blank">Thread</a>`;
+  L+='</div></div>';
+  if(l.context)R+=`<div class="detail-group"><h4>What they said</h4><div class="quote">${esc(l.context)}</div></div>`;
+  if(l.indirect_signal)R+=`<div class="detail-group"><h4>Signal</h4><div class="val" style="color:#bb9af7">${esc(l.indirect_signal)}</div></div>`;
+  if(p.notes.length)R+=`<div class="detail-group"><h4>Notes</h4><div class="val">${p.notes.map(n=>esc(n)).join('<br>')}</div></div>`;
+  R+=`<div class="meta">Tier ${l.tier} &middot; ${l.length||'?'}L &middot; r/${l.subreddit||'?'} &middot; ${l.date||'?'}${l.images&&l.images.length?' &middot; '+l.images.length+' img':''}</div>`;
+  return`<div class="lead-detail"><div>${L}</div><div>${R}</div></div>`;
+}
+
+function row(l){
+  const p=parseContact(l.contact);
+  const tierCls={S:'tier-s',A:'tier-a',B:'tier-b',C:'tier-c',D:'tier-d','?':'tier-b'}[l.tier]||'tier-d';
+  const typeCls={OWNER:'t-owner',SELLER:'t-seller',INDIRECT:'t-indirect',MENTION:'t-mention'}[l.ownership_type]||'t-mention';
+
+  const tags=[];
+  const ctx=(l.context||'').toLowerCase();
+  if(ctx.includes('give')&&ctx.includes('away'))tags.push('<span class="tag tag-free">FREE</span>');
+  if(ctx.includes('nitro')&&(ctx.includes('sell')||ctx.includes('down to')))tags.push('<span class="tag tag-cheap">CHEAP</span>');
+  if(ctx.includes('for a nitro')||ctx.includes('for nitro'))tags.push('<span class="tag tag-undervalued">UNDERVALUED</span>');
+
+  const act=p.activity?`<span style="color:${p.activity.c}">${p.activity.t}</span>`:p.status?'<span style="color:#f7768e">Dead</span>':'';
+
+  return`<div class="lead" >
+    <div class="lead-top">
+      <div class="lead-name" style="color:${{'S':'#f7768e','A':'#ff9e64','B':'#bb9af7','C':'#7dcfff','D':'#555','?':'#bb9af7'}[l.tier]||'#555'}">@${esc(l.username)}<span class="tier ${tierCls}">${l.tier}</span>${tags.join('')}</div>
+      <div><span class="lead-type ${typeCls}">${l.ownership_type}</span></div>
+      <div class="lead-author"><a href="https://www.reddit.com/user/${l.reddit_author}" target="_blank" onclick="event.stopPropagation()">u/${esc(l.reddit_author)}</a></div>
+      <div class="lead-summary">${summary(l,p)}</div>
+      <div class="lead-activity">${act}</div>
+    </div>
+    ${detail(l,p)}
+  </div>`;
+}
+
+function renderPriority(){
+  document.getElementById('filtersWrap').style.display='none';
+  const sorted=[...allLeads].sort((a,b)=>b._priority-a._priority);
+
+  const groups={deal:[],reachable:[],highvalue:[],hotindirect:[],indirect:[],low:[],dead:[]};
+  sorted.forEach(l=>{const g=getActionability(l);(groups[g]||groups.low).push(l);});
+
+  let h='';
+  if(groups.deal.length){
+    h+=sec('Ready to Deal — Sellers, giveaways, stated price',groups.deal.length,'#9ece6a');
+    h+=`<div class="leads">${groups.deal.map(row).join('')}</div>`;
+  }
+  if(groups.reachable.length){
+    h+=sec('High Value + Reachable — Have contact beyond Reddit',groups.reachable.length,'#f7768e');
+    h+=`<div class="leads">${groups.reachable.map(row).join('')}</div>`;
+  }
+  if(groups.highvalue.length){
+    h+=sec('High Value — S/A tier, Reddit DM only',groups.highvalue.length,'#ff9e64');
+    h+=`<div class="leads">${groups.highvalue.map(row).join('')}</div>`;
+  }
+  if(groups.hotindirect.length){
+    h+=sec('Hot Indirects — Being spammed, offered money, want to sell',groups.hotindirect.length,'#bb9af7');
+    h+=`<div class="leads">${groups.hotindirect.map(row).join('')}</div>`;
+  }
+  if(groups.indirect.length){
+    h+=sec('Other Indirects — Own something but unclear value',groups.indirect.length,'#7dcfff');
+    h+=`<div class="leads">${groups.indirect.map(row).join('')}</div>`;
+  }
+  if(groups.low.length){
+    h+=sec('Low Priority — Random 4L, mentions, low value',groups.low.length,'#444');
+    h+=`<div class="leads">${groups.low.map(row).join('')}</div>`;
+  }
+  if(groups.dead.length){
+    h+=sec('Dead — Suspended/inactive accounts',groups.dead.length,'#333');
+    h+=`<div class="leads">${groups.dead.map(row).join('')}</div>`;
+  }
+  document.getElementById('mainView').innerHTML=h;
+}
+
+function sec(title,count,color){
+  return`<div class="section"><h2 style="color:${color}">${title}</h2><span class="count">${count}</span><div class="line"></div></div>`;
+}
+
+function renderIndirect(){
+  document.getElementById('filtersWrap').style.display='none';
+  const ind=allLeads.filter(l=>l.ownership_type==='INDIRECT');
+  const cats={'2-letter':[],'3-letter':[],'4-letter':[],'Short/valuable':[],'Friend request spam':[],'Monetary offer':[],'Selling/giving away':[],'Real name':[],'Other':[]};
+  ind.forEach(l=>{
+    const s=(l.indirect_signal||'').toLowerCase(),c=(l.context||'').toLowerCase();
+    if(s.includes('2-letter')||s.includes('2 letter')||c.includes('2 letter'))cats['2-letter'].push(l);
+    else if(s.includes('3-letter')||s.includes('3 letter')||s.includes('3l')||c.includes('3 letter'))cats['3-letter'].push(l);
+    else if(s.includes('4-letter')||s.includes('4 letter')||s.includes('4l')||c.includes('4 letter'))cats['4-letter'].push(l);
+    else if(s.includes('offer')||c.includes('offered')||c.match(/\$\d/))cats['Monetary offer'].push(l);
+    else if(s.includes('sell')||s.includes('give')||c.includes('sell')||c.includes('give away'))cats['Selling/giving away'].push(l);
+    else if(s.includes('harass')||s.includes('spam')||s.includes('friend request')||c.includes('friend request')||c.includes('spam'))cats['Friend request spam'].push(l);
+    else if(s.includes('first name')||s.includes('real name'))cats['Real name'].push(l);
+    else if(s.includes('short')||s.includes('valuable')||s.includes('rare'))cats['Short/valuable'].push(l);
+    else cats['Other'].push(l);
+  });
+  let h=sec('Indirect Leads',ind.length,'#bb9af7');
+  h+='<p style="color:#444;font-size:12px;margin-bottom:14px">Own something valuable but didn\'t reveal the username. DM to find out.</p>';
+  for(const[cat,leads]of Object.entries(cats)){
+    if(!leads.length)continue;
+    leads.sort((a,b)=>b._priority-a._priority);
+    h+=`<div class="indirect-group"><h3>${cat} (${leads.length})</h3>`;
+    leads.forEach(l=>{
+      h+=`<div class="indirect-row">
+        <span class="s">${l._priority}</span>
+        <a class="a" href="https://www.reddit.com/user/${l.reddit_author}" target="_blank">u/${esc(l.reddit_author)}</a>
+        <span class="c">${esc((l.context||'').substring(0,110))}</span>
+        ${l.indirect_signal?`<span class="sig">${esc(l.indirect_signal)}</span>`:''}
+      </div>`;
+    });
+    h+='</div>';
+  }
+  document.getElementById('mainView').innerHTML=h;
+}
+
+function renderAll(){
+  document.getElementById('filtersWrap').style.display='flex';
+  const tier=document.getElementById('tierFilter').value;
+  const type=document.getElementById('typeFilter').value;
+  const q=document.getElementById('search').value.toLowerCase();
+  let f=allLeads.filter(l=>{
+    if(tier&&l.tier!==tier)return false;
+    if(type&&l.ownership_type!==type)return false;
+    if(q&&!l.username.toLowerCase().includes(q)&&!l.reddit_author.toLowerCase().includes(q)&&!(l.context||'').toLowerCase().includes(q)&&!(l.contact||'').toLowerCase().includes(q))return false;
+    return true;
+  });
+  f.sort((a,b)=>b._priority-a._priority);
+  document.getElementById('mainView').innerHTML=`<div class="leads">${f.map(row).join('')}</div>`;
+}
+
+function switchTab(tab){
+  currentTab=tab;
+  document.querySelectorAll('.nav-item').forEach(t=>t.classList.remove('active'));
+  event.target.classList.add('active');
+  if(tab==='priority')renderPriority();else if(tab==='indirect')renderIndirect();else renderAll();
+}
+
+function updateStats(){
+  const ti={},ty={};
+  allLeads.forEach(l=>{ti[l.tier]=(ti[l.tier]||0)+1;ty[l.ownership_type]=(ty[l.ownership_type]||0)+1;});
+  document.getElementById('stats').innerHTML=`
+    <div class="stat-card accent"><div class="n">${allLeads.length}</div><div class="l">Total</div></div>
+    <div class="stat-card"><div class="n" style="color:#f7768e">${ti['S']||0}</div><div class="l">S-Tier</div></div>
+    <div class="stat-card"><div class="n" style="color:#ff9e64">${ti['A']||0}</div><div class="l">A-Tier</div></div>
+    <div class="stat-card"><div class="n" style="color:#9ece6a">${ty['OWNER']||0}</div><div class="l">Owners</div></div>
+    <div class="stat-card"><div class="n" style="color:#ff9e64">${ty['SELLER']||0}</div><div class="l">Sellers</div></div>
+    <div class="stat-card"><div class="n" style="color:#bb9af7">${ty['INDIRECT']||0}</div><div class="l">Indirect</div></div>`;
+}
+
+let openLeads=new Set();
+async function loadData(initial){
+  try{
+    // Save open state before re-render
+    if(!initial)document.querySelectorAll('.lead.open').forEach(el=>{
+      const name=el.querySelector('.lead-name');
+      if(name)openLeads.add(name.textContent.trim().split(' ')[0]);
+    });
+    const r=await fetch('verified_leads.json?'+Date.now());
+    allLeads=await r.json();
+    allLeads.forEach(l=>{l._priority=getPriority(l);});
+    updateStats();
+    if(currentTab==='priority')renderPriority();else if(currentTab==='indirect')renderIndirect();else renderAll();
+    // Restore open state after re-render
+    document.querySelectorAll('.lead').forEach(el=>{
+      const name=el.querySelector('.lead-name');
+      if(name&&openLeads.has(name.textContent.trim().split(' ')[0]))el.classList.add('open');
+    });
+  }catch(e){console.error(e);}
+}
+
+document.getElementById('tierFilter').addEventListener('change',renderAll);
+document.getElementById('typeFilter').addEventListener('change',renderAll);
+document.getElementById('search').addEventListener('input',renderAll);
+// Event delegation for expanding leads
+document.addEventListener('click',function(e){
+  const row=e.target.closest('.lead');
+  if(!row)return;
+  // Don't toggle if clicking a link
+  if(e.target.tagName==='A')return;
+  row.classList.toggle('open');
+});
+
+loadData(true);
+setInterval(()=>loadData(false),15000);
+</script>
+</body></html>
